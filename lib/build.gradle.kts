@@ -1,6 +1,6 @@
 import com.vanniktech.maven.publish.SonatypeHost
 
-val libVersion = "1.0.0"
+val libVersion = "1.0.1-SNAPSHOT"
 
 plugins {
     id("com.android.library")
