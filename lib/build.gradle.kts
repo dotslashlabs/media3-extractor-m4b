@@ -46,6 +46,7 @@ dependencies {
     api("androidx.media3:media3-container:$media3Version")
 
     api("androidx.annotation:annotation:1.6.0")
+    api("com.google.errorprone:error_prone_annotations:2.15.0")
 }
 
 mavenPublishing {
