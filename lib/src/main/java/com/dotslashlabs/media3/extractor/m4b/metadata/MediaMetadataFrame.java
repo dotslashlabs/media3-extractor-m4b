@@ -57,6 +57,7 @@ public class MediaMetadataFrame implements Metadata.Entry {
     return Objects.hash(durationUs, fileType);
   }
 
+  @NonNull
   @Override
   public String toString() {
     return "TrackFrame{" +

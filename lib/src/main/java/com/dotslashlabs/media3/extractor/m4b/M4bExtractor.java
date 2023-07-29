@@ -174,6 +174,7 @@ public final class M4bExtractor implements Extractor, SeekMap {
   /** Creates a new extractor for unfragmented MP4 streams. */
   public M4bExtractor() {
     this(/* flags= */ 0);
+    accumulatedSampleSizes = new long[0][];
   }
 
   /**
@@ -196,6 +197,7 @@ public final class M4bExtractor implements Extractor, SeekMap {
     sampleTrackIndex = C.INDEX_UNSET;
     extractorOutput = ExtractorOutput.PLACEHOLDER;
     tracks = new Mp4Track[0];
+    accumulatedSampleSizes = new long[0][];
   }
 
   @Override
@@ -498,7 +500,7 @@ public final class M4bExtractor implements Extractor, SeekMap {
     GaplessInfoHolder gaplessInfoHolder = new GaplessInfoHolder();
     @Nullable Atom.LeafAtom udta = moov.getLeafAtomOfType(Atom.TYPE_udta);
     if (udta != null) {
-      com.dotslashlabs.media3.extractor.m4b.AtomParsers.UdtaInfo udtaInfo = com.dotslashlabs.media3.extractor.m4b.AtomParsers.parseUdta(udta);
+      AtomParsers.UdtaInfo udtaInfo = AtomParsers.parseUdta(udta);
       udtaMetaMetadata = udtaInfo.metaMetadata;
       smtaMetadata = udtaInfo.smtaMetadata;
       xyzMetadata = udtaInfo.xyzMetadata;
@@ -510,11 +512,11 @@ public final class M4bExtractor implements Extractor, SeekMap {
     @Nullable Metadata mdtaMetadata = null;
     @Nullable Atom.ContainerAtom meta = moov.getContainerAtomOfType(Atom.TYPE_meta);
     if (meta != null) {
-      mdtaMetadata = com.dotslashlabs.media3.extractor.m4b.AtomParsers.parseMdtaFromMeta(meta);
+      mdtaMetadata = AtomParsers.parseMdtaFromMeta(meta);
     }
 
     Metadata mvhdMetadata =
-        com.dotslashlabs.media3.extractor.m4b.AtomParsers.parseMvhd(checkNotNull(moov.getLeafAtomOfType(Atom.TYPE_mvhd)).data).metadata;
+        AtomParsers.parseMvhd(checkNotNull(moov.getLeafAtomOfType(Atom.TYPE_mvhd)).data).metadata;
 
     boolean ignoreEditLists = (flags & FLAG_WORKAROUND_IGNORE_EDIT_LISTS) != 0;
     List<TrackSampleTable> trackSampleTables =
@@ -778,14 +780,14 @@ public final class M4bExtractor implements Extractor, SeekMap {
       Metadata metadata = motionPhotoMetadata == null ? null : new Metadata(motionPhotoMetadata);
       trackOutput.format(new Format.Builder().setMetadata(metadata).build());
       extractorOutput.endTracks();
-      extractorOutput.seekMap(new SeekMap.Unseekable(/* durationUs= */ C.TIME_UNSET));
+      extractorOutput.seekMap(new Unseekable(/* durationUs= */ C.TIME_UNSET));
     }
   }
 
   private void maybeSkipRemainingMetaAtomHeaderBytes(ExtractorInput input) throws IOException {
     scratch.reset(8);
     input.peekFully(scratch.getData(), 0, 8);
-    com.dotslashlabs.media3.extractor.m4b.AtomParsers.maybeSkipRemainingMetaAtomHeaderBytes(scratch);
+    AtomParsers.maybeSkipRemainingMetaAtomHeaderBytes(scratch);
     input.skipFully(scratch.getPosition());
     input.resetPeekPosition();
   }

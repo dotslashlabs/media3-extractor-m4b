@@ -16,6 +16,7 @@
  */
 package com.dotslashlabs.media3.extractor.m4b;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.media3.common.util.ParsableByteArray;
 
@@ -433,6 +434,7 @@ import java.util.List;
     this.type = type;
   }
 
+  @NonNull
   @Override
   public String toString() {
     return getAtomTypeString(type);
@@ -557,6 +559,7 @@ import java.util.List;
       return count;
     }
 
+    @NonNull
     @Override
     public String toString() {
       return getAtomTypeString(type)

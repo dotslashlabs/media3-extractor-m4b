@@ -1454,11 +1454,13 @@ import java.util.List;
       // Note that if either mdcv or clli are missing, we leave the corresponding HDR static
       // metadata bytes with value zero. See [Internal ref: b/194535665].
       formatBuilder.setColorInfo(
-          new ColorInfo(
-              colorSpace,
-              colorRange,
-              colorTransfer,
-              hdrStaticInfo != null ? hdrStaticInfo.array() : null));
+          new ColorInfo.Builder()
+                  .setColorSpace(colorSpace)
+                  .setColorRange(colorRange)
+                  .setColorTransfer(colorTransfer)
+                  .setHdrStaticInfo(hdrStaticInfo != null ? hdrStaticInfo.array() : null)
+                  .build()
+      );
     }
 
     if (esdsData != null) {
