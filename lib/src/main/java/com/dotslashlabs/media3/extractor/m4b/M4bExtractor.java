@@ -36,6 +36,7 @@ import androidx.media3.common.util.UnstableApi;
 import androidx.media3.container.NalUnitUtil;
 import androidx.media3.extractor.Ac3Util;
 import androidx.media3.extractor.Ac4Util;
+import androidx.media3.extractor.DefaultExtractorsFactory;
 import androidx.media3.extractor.Extractor;
 import androidx.media3.extractor.ExtractorInput;
 import androidx.media3.extractor.ExtractorOutput;
@@ -49,6 +50,8 @@ import androidx.media3.extractor.TrueHdSampleRechunker;
 import com.dotslashlabs.media3.extractor.m4b.metadata.MediaMetadataFrame;
 import androidx.media3.extractor.metadata.mp4.MotionPhotoMetadata;
 import androidx.media3.extractor.metadata.mp4.SlowMotionData;
+import androidx.media3.extractor.mp4.FragmentedMp4Extractor;
+import androidx.media3.extractor.mp4.Mp4Extractor;
 
 import java.io.IOException;
 import java.lang.annotation.Documented;
@@ -57,7 +60,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+
 
 /** Extracts data from the MP4 container format. */
 @UnstableApi
@@ -198,6 +204,23 @@ public final class M4bExtractor implements Extractor, SeekMap {
     extractorOutput = ExtractorOutput.PLACEHOLDER;
     tracks = new Mp4Track[0];
     accumulatedSampleSizes = new long[0][];
+  }
+
+  public static Extractor[] createDefaultExtractors() {
+    return createDefaultExtractors(true);
+  }
+
+  public static Extractor[] createDefaultExtractors(boolean removeFragmentedMp4Extractor) {
+
+    return Arrays.stream(new DefaultExtractorsFactory().createExtractors()).map(extractor -> {
+      if (extractor instanceof Mp4Extractor) {
+        return new M4bExtractor();
+      } else if (removeFragmentedMp4Extractor && extractor instanceof FragmentedMp4Extractor) {
+        return null;
+      }
+
+      return extractor;
+    }).filter(Objects::nonNull).toArray(Extractor[]::new);
   }
 
   @Override
