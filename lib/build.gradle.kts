@@ -4,7 +4,6 @@ val libVersion = "1.0.3"
 
 plugins {
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 
     id("com.vanniktech.maven.publish") version "0.25.3"
 }
@@ -31,10 +30,6 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
-    }
-
-    kotlinOptions {
-        jvmTarget = "1.8"
     }
 }
 
