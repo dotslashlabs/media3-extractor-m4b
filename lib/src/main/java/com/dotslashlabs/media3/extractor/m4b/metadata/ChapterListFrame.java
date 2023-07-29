@@ -35,7 +35,7 @@ public class ChapterListFrame implements Metadata.Entry {
       this.chapters = new ArrayList<>();
     } else {
       this.chapterCount = chapters.size();
-      this.chapters = new ArrayList<>(chapterCount);
+      this.chapters = chapters;
     }
   }
 
