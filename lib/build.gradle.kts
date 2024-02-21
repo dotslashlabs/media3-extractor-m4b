@@ -11,10 +11,13 @@ plugins {
 android {
     namespace = "com.dotslashlabs.media3.extractor.m4b"
     version = libVersion
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         minSdk = 24
+
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testApplicationId = "com.dotslashlabs.media3.extractor.m4b.test"
     }
 
     buildTypes {
@@ -34,14 +37,22 @@ android {
 }
 
 dependencies {
-    val media3Version = "1.1.0"
+    val media3Version = "1.2.1"
 
     api("androidx.media3:media3-extractor:$media3Version")
     api("androidx.media3:media3-common:$media3Version")
     api("androidx.media3:media3-container:$media3Version")
 
-    api("androidx.annotation:annotation:1.6.0")
+    api("androidx.annotation:annotation:1.7.1")
     api("com.google.errorprone:error_prone_annotations:2.15.0")
+
+    androidTestImplementation("androidx.test:core:1.5.0")
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+
+    // AndroidJUnitRunner and JUnit Rules
+    androidTestImplementation("androidx.test:runner:1.5.2")
+    androidTestImplementation("androidx.test:rules:1.5.0")
+    androidTestImplementation("androidx.media3:media3-exoplayer:$media3Version")
 }
 
 mavenPublishing {
