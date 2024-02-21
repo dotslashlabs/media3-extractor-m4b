@@ -36,8 +36,8 @@ import androidx.media3.common.util.Log;
 import androidx.media3.common.util.ParsableByteArray;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
-import androidx.media3.container.CreationTime;
 import androidx.media3.container.Mp4LocationData;
+import androidx.media3.container.Mp4TimestampData;
 import androidx.media3.extractor.AacUtil;
 import androidx.media3.extractor.Ac3Util;
 import androidx.media3.extractor.Ac4Util;
@@ -47,10 +47,10 @@ import androidx.media3.extractor.ExtractorUtil;
 import androidx.media3.extractor.GaplessInfoHolder;
 import androidx.media3.extractor.HevcConfig;
 import androidx.media3.extractor.OpusUtil;
-import com.dotslashlabs.media3.extractor.m4b.metadata.ChapterListFrame;
-import com.dotslashlabs.media3.extractor.m4b.metadata.ChapterMetadata;
 import androidx.media3.extractor.metadata.mp4.SmtaMetadataEntry;
 
+import com.dotslashlabs.media3.extractor.m4b.metadata.ChapterListFrame;
+import com.dotslashlabs.media3.extractor.m4b.metadata.ChapterMetadata;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Ints;
@@ -61,6 +61,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 /** Utility methods for parsing MP4 format atom payloads according to ISO/IEC 14496-12. */
 @SuppressWarnings("ConstantField")
@@ -175,18 +176,20 @@ import java.util.List;
         continue;
       }
       @Nullable
-      Track track =
-          modifyTrackFunction.apply(
-              parseTrak(
-                  atom,
-                  checkNotNull(moov.getLeafAtomOfType(Atom.TYPE_mvhd)),
-                  duration,
-                  drmInitData,
-                  ignoreEditLists,
-                  isQuickTime));
+      Track track = parseTrak(
+              atom,
+              checkNotNull(moov.getLeafAtomOfType(Atom.TYPE_mvhd)),
+              duration,
+              drmInitData,
+              ignoreEditLists,
+              isQuickTime);
+
       if (track == null) {
         continue;
       }
+
+      track = modifyTrackFunction.apply(track);
+
       Atom.ContainerAtom stblAtom =
           checkNotNull(
               checkNotNull(
@@ -260,7 +263,7 @@ import java.util.List;
     long unixTimestampMs = (creationTimestampSeconds - timeDeltaSeconds) * 1000;
 
     long timescale = mvhd.readUnsignedInt();
-    return new MvhdInfo(new Metadata(new CreationTime(unixTimestampMs)), timescale);
+    return new MvhdInfo(new Metadata(new Mp4TimestampData(unixTimestampMs)), timescale);
   }
 
   /**
@@ -369,6 +372,7 @@ import java.util.List;
     int trackType =
         getTrackTypeForHdlr(parseHdlr(checkNotNull(mdia.getLeafAtomOfType(Atom.TYPE_hdlr)).data));
     if (trackType == C.TRACK_TYPE_UNKNOWN) {
+      Log.d(TAG, "Unknown chap track type=" + trackType);
       return null;
     }
 
